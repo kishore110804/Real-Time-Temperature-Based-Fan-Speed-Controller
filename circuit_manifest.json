@@ -1,0 +1,158 @@
+{
+  "project": "RTS_FanControl",
+  "timestamp": "2025-10-30T21:59:55.107564",
+  "components": [
+    {
+      "reference": "U1",
+      "part_code": "STM32F103C8",
+      "x": 100,
+      "y": 200,
+      "value": "STM32F103C8",
+      "orientation": 0
+    },
+    {
+      "reference": "C1",
+      "part_code": "02013A1R0CAT2A",
+      "x": 50,
+      "y": 150,
+      "value": "0.1uF",
+      "orientation": 0
+    },
+    {
+      "reference": "C2",
+      "part_code": "02013A1R0CAT2A",
+      "x": 50,
+      "y": 100,
+      "value": "0.1uF",
+      "orientation": 0
+    },
+    {
+      "reference": "C3",
+      "part_code": "02013A1R0CAT2A",
+      "x": 150,
+      "y": 150,
+      "value": "20pF",
+      "orientation": 0
+    },
+    {
+      "reference": "C4",
+      "part_code": "02013A1R0CAT2A",
+      "x": 150,
+      "y": 100,
+      "value": "20pF",
+      "orientation": 0
+    },
+    {
+      "reference": "R1",
+      "part_code": "10WATT1K",
+      "x": 75,
+      "y": 250,
+      "value": "1k",
+      "orientation": 0
+    },
+    {
+      "reference": "R2",
+      "part_code": "10WATT10K",
+      "x": 125,
+      "y": 250,
+      "value": "10k",
+      "orientation": 0
+    },
+    {
+      "reference": "R3",
+      "part_code": "10WATT220R",
+      "x": 175,
+      "y": 250,
+      "value": "220",
+      "orientation": 0
+    },
+    {
+      "reference": "U2",
+      "part_code": "LM35",
+      "x": 50,
+      "y": 300,
+      "value": "LM35",
+      "orientation": 0
+    },
+    {
+      "reference": "Q1",
+      "part_code": "2N2222",
+      "x": 200,
+      "y": 300,
+      "value": "2N2222",
+      "orientation": 0
+    },
+    {
+      "reference": "D1",
+      "part_code": "1N4007",
+      "x": 225,
+      "y": 300,
+      "value": "1N4007",
+      "orientation": 0
+    },
+    {
+      "reference": "XTAL1",
+      "part_code": "8MHz",
+      "x": 100,
+      "y": 350,
+      "value": "8MHz",
+      "orientation": 0
+    }
+  ],
+  "connections": [
+    {
+      "from": "U1.VCC",
+      "to": "C1.+"
+    },
+    {
+      "from": "U1.GND",
+      "to": "C1.-"
+    },
+    {
+      "from": "U2.VCC",
+      "to": "C2.+"
+    },
+    {
+      "from": "U2.GND",
+      "to": "C2.-"
+    },
+    {
+      "from": "U2.OUT",
+      "to": "U1.PA0"
+    },
+    {
+      "from": "U1.PA6",
+      "to": "R2.1"
+    },
+    {
+      "from": "R2.2",
+      "to": "Q1.BASE"
+    },
+    {
+      "from": "Q1.COLLECTOR",
+      "to": "D1.+"
+    },
+    {
+      "from": "D1.-",
+      "to": "Q1.EMITTER"
+    },
+    {
+      "from": "XTAL1.1",
+      "to": "U1.OSC_IN"
+    },
+    {
+      "from": "XTAL1.2",
+      "to": "U1.OSC_OUT"
+    },
+    {
+      "from": "C3.1",
+      "to": "XTAL1.1"
+    },
+    {
+      "from": "C4.1",
+      "to": "XTAL1.2"
+    }
+  ],
+  "total_components": 12,
+  "total_connections": 13
+}
