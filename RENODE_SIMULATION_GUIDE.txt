@@ -1,0 +1,250 @@
+================================================================================
+  RENODE SIMULATION GUIDE - STM32F103C8 Fan Control
+  Virtual Hardware Simulation Without Physical Devices
+================================================================================
+
+WHAT IS RENODE?
+---------------
+Renode is a virtual hardware simulator that runs your STM32 firmware
+without needing the physical BluePill board or sensors. You can:
+  ✓ Test your code before hardware arrives
+  ✓ Simulate temperature changes with software
+  ✓ See UART debug output in real-time
+  ✓ No Proteus license needed!
+
+
+================================================================================
+QUICK START - 3 STEPS TO SIMULATE
+================================================================================
+
+STEP 1: Install Renode (One-Time Setup)
+----------------------------------------
+Download from: https://renode.io/
+
+Windows:
+  - Download the .msi installer
+  - Run and install
+  - Add to PATH (installer does this automatically)
+
+Verify installation:
+  renode --version
+
+
+STEP 2: Build Your Firmware
+----------------------------
+In VS Code terminal:
+
+  pio run -e bluepill_f103c8
+
+Firmware will be at:
+  .pio/build/bluepill_f103c8/firmware.elf
+
+
+STEP 3: Run Simulation
+-----------------------
+In VS Code terminal:
+
+  renode stm32_sim.resc
+
+This will:
+  ✓ Load your STM32F103C8 virtual hardware
+  ✓ Load your compiled firmware
+  ✓ Open UART window showing printf outputs
+  ✓ Start with simulated temperature at 25°C
+
+
+================================================================================
+USING THE SIMULATION
+================================================================================
+
+BASIC COMMANDS
+--------------
+Start simulation:
+  start
+
+Pause simulation:
+  pause
+
+Resume simulation:
+  start
+
+Quit Renode:
+  quit
+
+
+TEMPERATURE CONTROL
+-------------------
+Option A: Run automatic temperature sweep (25°C → 100°C):
+
+  include @temp_sweep.resc
+
+This will gradually increase temperature and you'll see fan speed change.
+
+
+Option B: Manually set temperature:
+
+  25°C:  sysbus.adc1 FeedSample 310
+  40°C:  sysbus.adc1 FeedSample 496
+  60°C:  sysbus.adc1 FeedSample 744
+  80°C:  sysbus.adc1 FeedSample 992
+  100°C: sysbus.adc1 FeedSample 1240
+
+
+VIEWING UART OUTPUT
+-------------------
+The UART analyzer window shows your printf() statements from main.c:
+
+  Temp: 25 | ADC: 310 | PWM: 1240
+  Temp: 40 | ADC: 496 | PWM: 1984
+  Temp: 60 | ADC: 744 | PWM: 2976
+
+This is the same output you'd see on a real board!
+
+
+================================================================================
+TESTING YOUR FAN CONTROL
+================================================================================
+
+TEST SEQUENCE
+-------------
+1. Start simulation: renode stm32_sim.resc
+2. Watch UART window - should show 25°C initially
+3. Run temperature sweep: include @temp_sweep.resc
+4. Observe PWM duty cycle increase with temperature
+5. Take screenshot for your report
+
+
+EXPECTED BEHAVIOR
+-----------------
+Temperature  │  ADC Value  │  PWM Duty  │  Fan Status
+─────────────┼─────────────┼────────────┼──────────────
+   25°C      │     310     │    ~1240   │   Low Speed
+   40°C      │     496     │    ~1984   │   Medium
+   60°C      │     744     │    ~2976   │   High
+   80°C      │     992     │    ~3968   │   Max
+  100°C      │    1240     │    ~4000   │   Maximum
+
+
+VERIFICATION CHECKLIST
+----------------------
+✓ UART output shows temperature readings
+✓ ADC values match expected (temp * 12.4)
+✓ PWM duty increases linearly with temperature
+✓ System responds to temperature changes in real-time
+
+
+================================================================================
+RENODE vs PROTEUS COMPARISON
+================================================================================
+
+                    RENODE              PROTEUS
+License:            FREE                PAID (~$200+)
+Setup Time:         5 minutes           30+ minutes
+Speed:              FAST                Slow
+UART Output:        Native window       Virtual Terminal
+Component Wiring:   Automatic           Manual (tedious)
+Learning Curve:     Easy                Medium
+Debugging:          Built-in GDB        Limited
+Best For:           Software testing    Circuit visualization
+
+
+================================================================================
+ADVANCED FEATURES
+================================================================================
+
+ATTACH DEBUGGER (GDB)
+---------------------
+In Renode:
+  machine StartGdbServer 3333
+
+In VS Code:
+  - Add launch configuration for GDB
+  - Connect to localhost:3333
+  - Set breakpoints in your code
+  - Step through execution
+
+
+RECORD SIMULATION
+-----------------
+To save UART output to file:
+
+  logFile @simulation_output.txt
+  include @temp_sweep.resc
+
+Output saved to: simulation_output.txt
+
+
+CUSTOM TEMPERATURE PATTERNS
+----------------------------
+Edit temp_sweep.resc to create your own patterns:
+  - Sudden temperature spikes
+  - Gradual temperature drops  
+  - Random temperature variations
+  - Temperature cycling
+
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: "renode: command not found"
+Solution: Install Renode from https://renode.io/ and add to PATH
+
+Problem: "Could not load ELF file"
+Solution: Run "pio run" first to build firmware.elf
+
+Problem: No UART output shown
+Solution: Check that UART1 is configured in your code (115200 baud)
+
+Problem: ADC values don't change fan speed
+Solution: Verify ADC and PWM initialization in stm32_hal_init.c
+
+Problem: Simulation runs too fast
+Solution: Add time delays in temp_sweep.resc (increase sleep value)
+
+
+================================================================================
+FILE REFERENCE
+================================================================================
+
+stm32_sim.resc         - Main simulation script (run this first)
+temp_sweep.resc        - Automatic temperature sweep script
+firmware.elf           - Your compiled STM32 firmware
+simulation_output.txt  - Recorded UART output (if using logFile)
+
+
+================================================================================
+QUICK COMMAND REFERENCE
+================================================================================
+
+# Start simulation
+renode stm32_sim.resc
+
+# Inside Renode:
+start                               # Begin execution
+pause                               # Pause simulation
+include @temp_sweep.resc           # Run temperature sweep
+sysbus.adc1 FeedSample 620         # Set temp to 50°C
+logFile @output.txt                # Record output
+quit                                # Exit Renode
+
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. ✓ Install Renode
+2. ✓ Build firmware: pio run
+3. ✓ Run simulation: renode stm32_sim.resc
+4. ✓ Test temperature sweep: include @temp_sweep.resc
+5. ✓ Take screenshots of UART output
+6. ✓ Document results for your report
+
+
+For more info: https://renode.readthedocs.io/
+
+Good luck! 🚀
+
+================================================================================
+END OF GUIDE
+================================================================================

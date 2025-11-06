@@ -1,0 +1,225 @@
+# RTS Fan Control - ngspice Simulation
+# Temperature Sensor to PWM Motor Control
+# STM32F103C8 BluePill with LM35 and 2N2222 Driver
+
+.title RTS Fan Control - SPICE Simulation
+
+* ============================================================
+* POWER SUPPLIES
+* ============================================================
+VCC 1 0 DC 5V          ; Main 5V supply
+VDD 2 0 DC 3.3V       ; STM32 core supply
+
+* ============================================================
+* TEMPERATURE SENSOR (LM35)
+* Input: 0-100°C mapped to 0-3.3V
+* Output equation: V_ADC = Temp * 0.01V per °C
+* ============================================================
+
+* Temperature sweep: -10°C to +110°C
+* ADC input range: -0.1V to 1.1V
+VIN_TEMP 3 0 DC 0.5V PULSE(0.5 0.5 0 0 0 1m 1)
+
+* LM35 Temperature Sensor Model
+* Input = Ambient Temp (in Voltage form)
+* Output = 10mV/°C + 0.5V offset
+.SUBCKT LM35 IN OUT VCC GND
+  * Output buffer (voltage follower with offset)
+  * V_out = V_in (direct coupling)
+  EOUT OUT GND IN GND 1.0
+.ENDS LM35
+
+* ============================================================
+* STM32F103C8 - SIMPLIFIED BEHAVIORAL MODEL
+* ============================================================
+
+.SUBCKT STM32F103C8 VDDA PA0 PA6 PA9 PA10 OSCIN OSCOUT VDD GND
+  * ADC Channel 0 (PA0) - Temperature input
+  * PA6 - PWM Output (TIM3_CH1)
+  * PA9 - UART TX
+  * PA10 - UART RX
+  * OSCIN/OSCOUT - Crystal oscillator pins
+  
+  * Simplified model: ADC input → PWM output transfer function
+  * ADC reads PA0 (0-3.3V → 0-4095 counts)
+  * Temperature control: Duty = (ADC_count / 4095) * 100%
+  
+  * Input buffer (high impedance)
+  RIN PA0 ADCIN 1G
+  
+  * ADC simulation (0-3.3V input → 0-5V proportional output)
+  EADC ADCOUT GND ADCIN GND 1.515  ; Gain = 5V / 3.3V ≈ 1.515
+  
+  * PWM generator (input voltage → PWM duty cycle)
+  * Output on PA6: 0-3.3V proportional to ADC input
+  EPWM PA6 GND ADCOUT GND 0.66    ; Gain = 3.3V / 5V = 0.66
+  
+  * Current limiting on PA6 (typical GPIO 20mA)
+  RPWM_OUT PA6 0 165              ; 3.3V / 20mA ≈ 165Ω equivalent
+  
+  * UART TX buffer (PA9)
+  RPA9 PA9 0 1G
+  
+  * Oscillator pins (high impedance, no load)
+  ROSCI OSCIN 0 1G
+  ROSCO OSCOUT 0 1G
+  
+  * Crystal load capacitors (internal)
+  COSC1 OSCIN 0 20p
+  COSC2 OSCOUT 0 20p
+
+.ENDS STM32F103C8
+
+* ============================================================
+* 2N2222 NPN TRANSISTOR MODEL (simplified)
+* ============================================================
+
+.SUBCKT 2N2222_BJT B C E
+  * Base-Emitter junction
+  DBE B E DMOD
+  * Base-Collector junction
+  DBC B C DMOD
+  * Collector-Emitter (with current gain)
+  FCC C E VBE_SENSE 100   ; Current gain = 100 (typical hFE)
+  VBE_SENSE B E 0
+  
+  * Saturation resistance (Rce_sat ≈ 10Ω when saturated)
+  RCE C E 10
+  
+  * Reverse saturation current
+  RBE B E 100k
+
+.MODEL DMOD D(Is=1e-14)
+
+.ENDS 2N2222_BJT
+
+* ============================================================
+* 1N4007 DIODE MODEL
+* ============================================================
+
+.SUBCKT 1N4007 A K
+  D1 A K DIODE_1N4007
+
+.MODEL DIODE_1N4007 D(
+  + IS=5.84E-14
+  + RS=0.8
+  + N=1.906
+  + BV=1000
+  + IBV=100E-6
+  + CJO=1.0E-11
+  + VJ=0.75
+  + M=0.333
+  + FC=0.5
+  + TT=4.761E-9
+  + Kf=0
+  + AF=1
+  + XTB=1.5
+  + EG=1.11
+  + XTI=3
+  + CJP=0
+  + VJP=0.75
+  + MP=0.333
+  + PHP=0.75
+  + MHP=0.001
+  + TBV1=0.001
+  + TBV2=0.0001
+  + TNOM=27
+  + TEMP=27
+)
+
+.ENDS 1N4007
+
+* ============================================================
+* CIRCUIT CONNECTIONS
+* ============================================================
+
+* Power supply connections
+* VCC = 5V (for motor and transistor)
+* VDD = 3.3V (for STM32)
+
+* LM35 Temperature Sensor (U2)
+* Pin 1 (GND) = GND
+* Pin 2 (Vout) = PA0 (ADC input)
+* Pin 3 (VCC) = VCC
+XU2 VIN_TEMP PA0 VCC 0 LM35
+
+* STM32F103C8 Microcontroller (U1)
+* VDD = 3.3V, GND = 0V
+* PA0 = ADC input from LM35
+* PA6 = PWM output
+* PA9 = UART TX (not used in sim)
+* PA10 = UART RX (not used in sim)
+* OSCIN/OSCOUT = 8MHz crystal pins
+XU1 PA0 PA0 PA6 PA9 PA10 OSCIN OSCOUT 2 0 STM32F103C8
+
+* Decoupling capacitors
+C1 2 0 100n         ; 0.1µF on VDD
+C2 VCC 0 100n       ; 0.1µF on VCC
+
+* 8MHz Crystal Oscillator (X1) + Load Capacitors (C3, C4)
+* Crystal modeled as resistor (no actual oscillation in DC sim)
+RX1 OSCIN OSCOUT 1M  ; High impedance between pins
+C3 OSCIN 0 20p      ; Load capacitor 1
+C4 OSCOUT 0 20p     ; Load capacitor 2
+
+* Pull-up resistors (R1, R2)
+R1 PA0 VCC 10k      ; Pull-up on ADC input (if needed)
+R2 PA6 VCC 10k      ; Pull-up on PWM (for open-drain mode)
+
+* Motor Driver Circuit
+* R3 = Base resistor for 2N2222
+* Q1 = 2N2222 NPN transistor
+* Motor_load = 5V motor supply
+* D1 = Protection diode (EMF suppression)
+
+R3 PA6 QB 1k        ; Base resistor: PA6(3.3V) → QB → Q1 base
+
+* 2N2222 Transistor (Q1)
+* Collector to VCC (5V motor supply)
+* Emitter to GND
+* Base driven by PA6 through R3
+XQ1 QB QCOL 0 2N2222_BJT
+
+* Motor Model (simplified as resistor + inductor)
+* Represents DC motor: Rm (resistance) + Lm (inductance)
+RMOTOR QCOL MOTOR_GND 100
+LMOTOR MOTOR_GND 0 1m
+CMOTOR QCOL 0 10u
+
+* Protection Diode (D1) - Reverse EMF suppression
+* Anode = Motor GND, Cathode = VCC (freewheeling path)
+XD1 MOTOR_GND VCC 1N4007
+
+* ============================================================
+* ANALYSIS AND MEASUREMENTS
+* ============================================================
+
+.control
+  * DC Operating Point Analysis
+  op
+  print all
+  
+  * Transient analysis: 0 to 10 seconds
+  * Temperature sweep simulation
+  tran 0.1m 10
+  
+  * Temperature sweep: -10°C to +110°C
+  * Simulate as voltage sweep: 0V to 1.1V (represents 0-110°C)
+  dc VIN_TEMP 0 1.1 0.01
+  
+  * Measure results
+  set hcopydevtype=postscript
+  
+  * Generate plot
+  plot v(PA0) v(PA6)
+  plot v(PA0) vs time
+  plot v(PA6) vs time
+  
+  * Print temperature response table
+  print v(PA0) v(PA6) > temp_response.txt
+
+.endc
+
+* ============================================================
+* END OF SIMULATION FILE
+* ============================================================

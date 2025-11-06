@@ -1,0 +1,262 @@
+# STM32 FAN CONTROL - COMPLETE REPORT GENERATION GUIDE
+================================================================================
+
+## WHAT YOU NEED FOR YOUR PROJECT REPORT
+
+This setup will automatically:
+✓ Run complete temperature sweep (25°C to 100°C)
+✓ Log all UART debug output
+✓ Generate formatted reports
+✓ Create CSV data for Excel/graphs
+✓ Provide statistics and analysis
+
+================================================================================
+
+## METHOD 1: AUTOMATED REPORT GENERATION (RECOMMENDED)
+================================================================================
+
+### Step 1: Run the automated test
+
+Double-click: **generate_report.bat**
+
+OR in PowerShell:
+```powershell
+.\generate_report.bat
+```
+
+This will:
+- Start Renode simulation
+- Load your STM32 firmware
+- Automatically sweep temperature from 25°C to 100°C
+- Log everything to files
+
+### Step 2: Wait for completion (about 2-3 minutes)
+
+You'll see:
+- Renode window opens
+- UART Analyzer shows temperature/PWM data in real-time
+- Console shows progress: "Setting Temperature: 25°C... 30°C... 35°C..."
+- Temperature changes every 2 seconds
+
+### Step 3: Generate the formatted report
+
+After simulation completes, run:
+```powershell
+python analyze_results.py
+```
+
+This creates:
+- **PROJECT_REPORT.txt** - Professional formatted report with:
+  * System specifications
+  * Temperature/ADC/PWM statistics  
+  * Detailed measurement table
+  * Control algorithm analysis
+  
+- **simulation_data.csv** - Raw data for Excel charts
+
+### Step 4: View your reports
+
+Open the files:
+- `PROJECT_REPORT.txt` - Your main report (copy/paste into Word)
+- `simulation_data.csv` - Open in Excel to create graphs
+- `uart_output.txt` - Raw UART data (debugging reference)
+
+================================================================================
+
+## METHOD 2: MANUAL CONTROL (For Live Demonstration)
+================================================================================
+
+### Step 1: Start Renode
+
+Double-click: **run_renode.bat**
+
+OR:
+```powershell
+.\run_renode.bat
+```
+
+### Step 2: Manually change temperature
+
+In the Renode console window, type commands:
+
+```
+# Set to 25°C (ADC = 310)
+sysbus.adc1 FeedSample 310
+
+# Set to 50°C (ADC = 620)
+sysbus.adc1 FeedSample 620
+
+# Set to 75°C (ADC = 930)
+sysbus.adc1 FeedSample 930
+
+# Set to 100°C (ADC = 1240)
+sysbus.adc1 FeedSample 1240
+```
+
+Watch the UART Analyzer window to see PWM values change!
+
+### Step 3: Run automated sweep
+
+In Renode console, type:
+```
+i @temp_sweep.resc
+```
+
+This will automatically sweep through all temperatures.
+
+================================================================================
+
+## TEMPERATURE TO ADC REFERENCE TABLE
+================================================================================
+
+Temperature (°C) | ADC Value | PWM Duty | Fan Speed %
+-----------------|-----------|----------|-------------
+25               | 310       | ~1240    | ~31%
+30               | 372       | ~1488    | ~37%
+35               | 434       | ~1736    | ~43%
+40               | 496       | ~1984    | ~50%
+45               | 558       | ~2232    | ~56%
+50               | 620       | ~2480    | ~62%
+55               | 682       | ~2728    | ~68%
+60               | 744       | ~2976    | ~74%
+65               | 806       | ~3224    | ~81%
+70               | 868       | ~3472    | ~87%
+75               | 930       | ~3720    | ~93%
+80               | 992       | ~3968    | ~99%
+85               | 1054      | 4000     | 100%
+90               | 1116      | 4000     | 100%
+95               | 1178      | 4000     | 100%
+100              | 1240      | 4000     | 100%
+
+Formula: ADC_Value = (Temperature_°C × 0.01V) / 3.3V × 4095
+
+================================================================================
+
+## WHAT TO INCLUDE IN YOUR PROJECT REPORT
+================================================================================
+
+### 1. PROJECT OVERVIEW
+- Title: "Real-Time Fan Control System using STM32F103C8"
+- Hardware: STM32 BluePill, LM35 sensor, 2N2222 transistor
+- Purpose: Automatic fan speed control based on temperature
+
+### 2. SYSTEM SPECIFICATIONS (from PROJECT_REPORT.txt)
+- Copy the "SYSTEM SPECIFICATIONS" section
+- Shows all hardware details
+
+### 3. CONTROL ALGORITHM
+- Explain proportional control: PWM proportional to ADC
+- Formula: PWM_Duty = (ADC_Value / 4095) × 4000
+- Linear temperature-to-speed relationship
+
+### 4. SIMULATION RESULTS (from PROJECT_REPORT.txt)
+- Copy the "SIMULATION STATISTICS" section
+- Shows temperature range, ADC range, PWM utilization
+
+### 5. MEASUREMENT DATA TABLE
+- Copy the "DETAILED MEASUREMENTS" table from PROJECT_REPORT.txt
+- Shows temperature vs fan speed relationship
+
+### 6. GRAPHS (create in Excel from simulation_data.csv)
+- Graph 1: Temperature vs Time
+- Graph 2: PWM Duty Cycle vs Temperature
+- Graph 3: Fan Speed % vs Temperature
+
+### 7. CIRCUIT DIAGRAM
+- Use the circuit from PROTEUS_COMPLETE_GUIDE.txt
+- Or reference the connections in EXACT_CONNECTIONS.md
+
+### 8. CODE HIGHLIGHTS
+- Show main control loop from src/main.c
+- Show HAL initialization from src/stm32_hal_init.c
+
+### 9. CONCLUSIONS
+- System successfully maintains proportional control
+- Temperature range: 25-100°C
+- Fan speed adjusts linearly with temperature
+- Suitable for real-world cooling applications
+
+================================================================================
+
+## TROUBLESHOOTING
+================================================================================
+
+**Problem: "renode: command not found"**
+Solution: Use the .bat files or full path:
+```powershell
+& "C:\Program Files\Renode\bin\Renode.exe" -e "i @generate_report.resc"
+```
+
+**Problem: No UART output in uart_output.txt**
+Solution: Make sure simulation runs for at least 30 seconds to collect data
+
+**Problem: analyze_results.py fails**
+Solution: Install Python 3 if not installed, script needs Python 3.6+
+
+**Problem: Renode window closes immediately**
+Solution: Check simulation_report.log for errors
+
+**Problem: Want to run simulation longer**
+Solution: In temp_sweep.resc, change:
+```python
+time.sleep(2)  # Change to time.sleep(5) for longer observation
+```
+
+================================================================================
+
+## QUICK REFERENCE - ALL FILES
+================================================================================
+
+### Simulation Files
+- **generate_report.bat**     - Double-click to generate reports
+- **run_renode.bat**          - Double-click for manual control
+- **generate_report.resc**    - Automated test script
+- **stm32_sim.resc**          - Basic simulation setup
+- **temp_sweep.resc**         - Temperature sweep automation
+
+### Analysis Files
+- **analyze_results.py**      - Generate formatted report
+
+### Output Files (Generated after running simulation)
+- **PROJECT_REPORT.txt**      - Main formatted report
+- **simulation_data.csv**     - Data for Excel graphs
+- **uart_output.txt**         - Raw UART debug data
+- **simulation_report.log**   - Full Renode log
+
+### Source Code
+- **src/main.c**              - Main application
+- **src/stm32_hal_init.c**    - HAL initialization
+- **platformio.ini**          - Build configuration
+
+### Documentation
+- **PROTEUS_COMPLETE_GUIDE.txt** - Proteus circuit setup
+- **RENODE_SIMULATION_GUIDE.txt** - Renode usage guide
+- **FILE_INDEX.txt**          - All files reference
+
+================================================================================
+
+## SUMMARY - YOUR WORKFLOW
+================================================================================
+
+1. ✓ Firmware already compiled (firmware.elf exists)
+
+2. Run automated test:
+   ```
+   .\generate_report.bat
+   ```
+   (Wait 2-3 minutes for temperature sweep)
+
+3. Generate formatted report:
+   ```
+   python analyze_results.py
+   ```
+
+4. Open PROJECT_REPORT.txt - Your complete report!
+
+5. Open simulation_data.csv in Excel - Create graphs
+
+6. Copy/paste sections into your project documentation
+
+================================================================================
+END OF GUIDE
+================================================================================

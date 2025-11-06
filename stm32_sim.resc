@@ -1,0 +1,45 @@
+# Copilot, create a Renode simulation script for my STM32F103C8 PlatformIO project.
+# It should:
+# 1. Load the STM32F103C8 platform description.
+# 2. Load my compiled ELF file from .pio/build/*/firmware.elf.
+# 3. Open a UART analyzer window so I can see printf outputs.
+# 4. Optionally allow me to simulate ADC input values for LM35.
+# 5. Start the simulation automatically.
+# Use proper Renode .resc syntax.
+
+using sysbus
+mach create "stm32_fan_project"
+
+# Load STM32F103C8 platform
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+# Load compiled firmware (using quoted path)
+$elf_path = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_f103c8\\firmware.elf"
+sysbus LoadELF $elf_path
+
+# Configure UART for printf output
+showAnalyzer sysbus.usart1
+
+# Set initial ADC value (simulating 25°C = 0.25V)
+# ADC is 12-bit (0-4095), so 0.25V / 3.3V * 4095 ≈ 310
+# LM35 outputs 10mV/°C, so 0.25V = 25°C
+sysbus.adc1 FeedSample 310
+
+# Start simulation
+start
+
+# Display info
+echo "========================================="
+echo "STM32F103C8 Fan Control Simulation Ready"
+echo "========================================="
+echo "UART1 analyzer window opened"
+echo "ADC1 connected (LM35 temperature input)"
+echo "Initial temp: 25°C (ADC = 310)"
+echo ""
+echo "To change temperature manually:"
+echo "  sysbus.adc1 FeedSample <value>"
+echo "  Example: 25°C  → 310"
+echo "           50°C  → 620"
+echo "           75°C  → 930"
+echo "           100°C → 1240"
+echo "========================================="

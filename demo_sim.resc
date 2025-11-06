@@ -1,0 +1,40 @@
+# WORKING SIMULATION - Simplified bare-metal version
+
+using sysbus
+mach create "fan_control_demo"
+
+# Load platform
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+# Load simplified firmware
+$elf = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_simple\\firmware.elf"
+sysbus LoadELF $elf
+
+# Setup UART with file logging
+$uart_file = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\uart_output.txt"
+sysbus.usart1 CreateFileBackend $uart_file true
+
+# Open UART window
+showAnalyzer sysbus.usart1
+
+echo ""
+echo "========================================"
+echo "   STM32 FAN CONTROL - LIVE DEMO"
+echo "========================================"
+echo "Starting simplified firmware..."
+echo "This version auto-generates temperature data"
+echo ""
+echo "Watch the UART Analyzer window!"
+echo "Output will also be saved to: uart_output.txt"
+echo ""
+echo "Temperature will automatically sweep from 25°C to 100°C"
+echo "You'll see real-time PWM and fan speed calculations"
+echo ""
+echo "Type 'pause' to stop the simulation"
+echo "========================================"
+
+start
+
+echo ""
+echo "✓ Simulation RUNNING!"
+echo ""

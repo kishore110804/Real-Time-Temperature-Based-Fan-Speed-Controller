@@ -1,0 +1,45 @@
+# RTS Fan Control - FALSTAD CIRCUIT SIMULATOR
+# Temperature to PWM Motor Control - CORRECTED VERSION
+# Copy ONLY the lines starting with $ through the last line before comments
+
+$ 1 0.000005 10.20027220733711 50 5 50 5e-11
+v 80 80 80 160 0 0 40 2.5 0 0 0.5
+r 80 80 80 48 0 1000
+w 80 48 160 48 0
+R 160 48 160 16 0 0 40 10000 0 0 0.5
+g 160 16 160 0 0 0
+w 160 48 240 48 0
+r 240 48 240 96 0 1000
+g 240 96 240 112 0 0
+w 240 48 320 48 0
+c 320 48 320 80 0 0.0000001 5 0
+g 320 80 320 96 0 0
+w 320 48 400 48 0
+r 400 48 400 96 0 1000
+w 400 48 480 48 0
+w 480 48 480 16 0
+d 480 96 480 48 2 1n4007
+w 480 96 480 160 0
+g 480 160 480 176 0 0
+w 400 96 400 160 0
+g 400 160 400 176 0 0
+w 80 160 160 160 0
+w 160 160 240 160 0
+w 240 160 320 160 0
+w 320 160 400 160 0
+w 400 160 480 160 0
+
+# CIRCUIT COMPONENTS:
+# V1 (0-2.5V): Temperature input (0-100°C)
+# All resistors have proper paths to ground
+# C1 (0.1µF): Decoupling capacitor
+# D1 (1N4007): Protection diode
+# Motor output: Watch voltage at node between R3 and capacitor
+
+# TO USE:
+# 1. Go to: https://falstad.com/circuit/
+# 2. Click: File → Import from Text
+# 3. Copy & Paste ONLY the code above ($ through last w line)
+# 4. Click OK
+# 5. Adjust V1 slider to see temperature response
+

@@ -1,0 +1,438 @@
+================================================================================
+  RTS FAN CONTROL - COMPLETE PROTEUS SIMULATION GUIDE
+  STM32F103C8 + LM35 Temperature Sensor + PWM Fan Control
+================================================================================
+
+This guide will walk you through EVERYTHING from building the circuit in 
+Proteus to uploading the HEX file and running the simulation.
+
+================================================================================
+PART 1: BUILD THE CIRCUIT IN PROTEUS
+================================================================================
+
+STEP 1: Open Proteus
+--------------------
+1. Launch Proteus 8 Professional
+2. File → New Project → Create a blank schematic
+3. Save as: "RTS_FanControl.pdsprj"
+
+
+STEP 2: Add Components (12 total)
+----------------------------------
+
+Search for each component in the "Pick Devices" dialog (P key):
+
+Component 1: STM32F103C8 Microcontroller
+  ✓ Search: STM32F103C8
+  ✓ Label: U1
+  ✓ Place in center of schematic
+
+Component 2: LM35 Temperature Sensor
+  ✓ Search: LM35
+  ✓ Label: U2
+  ✓ Place to the LEFT of U1
+
+Component 3-6: Capacitors (4 total)
+  ✓ Search: 02013A1R0CAT2A
+  ✓ Labels: C1, C2 (0.1µF decoupling)
+  ✓ Search: CAP (for crystal load caps)
+  ✓ Labels: C3, C4 (20pF each)
+
+Component 7-9: Resistors (3 total)
+  ✓ Search: 10WATT1K  → Label: R1 (1kΩ)
+  ✓ Search: 10WATT10K → Label: R2 (10kΩ)
+  ✓ Search: 10WATT220R → Label: R3 (220Ω)
+
+Component 10: 2N2222 Transistor
+  ✓ Search: 2N2222
+  ✓ Label: Q1
+  ✓ Place to the RIGHT of U1
+
+Component 11: 1N4007 Diode
+  ✓ Search: 1N4007
+  ✓ Label: D1
+  ✓ Place near Q1
+
+Component 12: 8MHz Crystal
+  ✓ Search: RESONATOR or CRYSTAL
+  ✓ If not found, use: CONN (2-pin connector)
+  ✓ Label: X1 or XTAL1
+
+
+STEP 3: Wire Everything (Follow This EXACT Order)
+--------------------------------------------------
+
+POWER CONNECTIONS (Do These First):
+------------------------------------
+1. U1 Pin VDD → +3.3V power rail
+2. U1 Pin VSS → GND (ground rail)
+3. U1 Pin VDDA → +3.3V power rail
+4. U1 Pin VSSA → GND
+
+5. U2 Pin VCC → +5V power rail
+6. U2 Pin GND → GND
+
+7. C1 Pin 1 → U1 VDD
+   C1 Pin 2 → GND
+
+8. C2 Pin 1 → U2 VCC
+   C2 Pin 2 → GND
+
+
+TEMPERATURE SENSOR CONNECTIONS:
+--------------------------------
+9. U2 Pin VOUT → U1 Pin PA0 (ADC input)
+
+
+CRYSTAL OSCILLATOR CONNECTIONS:
+--------------------------------
+10. X1 Pin 1 → U1 Pin OSC_IN (or OSCIN_PD0)
+11. X1 Pin 2 → U1 Pin OSC_OUT (or OSCOUT_PD1)
+
+12. C3 Pin 1 → X1 Pin 1
+    C3 Pin 2 → GND
+
+13. C4 Pin 1 → X1 Pin 2
+    C4 Pin 2 → GND
+
+
+PWM OUTPUT TO TRANSISTOR:
+--------------------------
+14. U1 Pin PA6 → R3 Pin 1
+15. R3 Pin 2 → Q1 Pin BASE
+
+
+MOTOR DRIVER CIRCUIT:
+----------------------
+16. Q1 Pin COLLECTOR → +5V (motor supply)
+17. Q1 Pin EMITTER → GND
+
+18. D1 Pin CATHODE (stripe end) → +5V
+19. D1 Pin ANODE → Q1 COLLECTOR
+
+20. R1 Pin 1 → Q1 COLLECTOR
+    R1 Pin 2 → GND (this represents the motor load)
+
+
+PULL-UP/PULL-DOWN RESISTORS:
+-----------------------------
+21. R2 Pin 1 → U1 Pin PA0
+    R2 Pin 2 → +3.3V
+
+
+STEP 4: Add Power Supplies
+---------------------------
+1. Click on "Terminals Mode" (or press T)
+2. Add POWER terminal:
+   - Place near top of schematic
+   - Set to +5V
+   - Label: VCC
+
+3. Add POWER terminal:
+   - Place near top of schematic
+   - Set to +3.3V
+   - Label: VDD
+
+4. Add GROUND terminals:
+   - Place at bottom of schematic
+   - Connect all GND wires here
+
+
+STEP 5: Verify All Connections
+-------------------------------
+Double-check this connection summary:
+
+┌─────────────────────────────────────────────────────────────┐
+│ U1 (STM32F103C8) Connections:                              │
+├─────────────────────────────────────────────────────────────┤
+│ PA0  → U2.VOUT (LM35 output)                               │
+│ PA6  → R3 → Q1.BASE (PWM output)                           │
+│ OSC_IN  → X1 Pin 1                                         │
+│ OSC_OUT → X1 Pin 2                                         │
+│ VDD  → +3.3V + C1                                          │
+│ VSS  → GND                                                 │
+│ VDDA → +3.3V                                               │
+│ VSSA → GND                                                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ U2 (LM35) Connections:                                     │
+├─────────────────────────────────────────────────────────────┤
+│ VCC  → +5V + C2                                            │
+│ VOUT → U1.PA0 + R2                                         │
+│ GND  → GND                                                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Q1 (2N2222) Connections:                                   │
+├─────────────────────────────────────────────────────────────┤
+│ BASE     → R3 → U1.PA6                                     │
+│ COLLECTOR → +5V + D1.ANODE + R1                            │
+│ EMITTER  → GND                                             │
+└─────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+PART 2: LOAD THE HEX FILE
+================================================================================
+
+STEP 1: Build Your Firmware
+----------------------------
+1. Open VS Code with your project
+2. Open PlatformIO terminal (Ctrl + `)
+3. Run this command:
+
+   pio run -e bluepill_f103c8
+
+4. Wait for "SUCCESS" message
+5. HEX file location:
+   .pio\build\bluepill_f103c8\firmware.hex
+
+
+STEP 2: Load HEX into Proteus
+------------------------------
+1. In Proteus, DOUBLE-CLICK on U1 (STM32F103C8)
+2. Component Properties window opens
+3. Find field: "Program File"
+4. Click the folder icon (📁) next to it
+5. Navigate to your project folder:
+   C:\Users\Kishore N\Documents\PlatformIO\Projects\RTS_FanControl
+6. Go into: .pio → build → bluepill_f103c8
+7. Select: firmware.hex
+8. Click Open
+9. Click OK to close properties
+
+
+STEP 3: Verify HEX File is Loaded
+----------------------------------
+✓ U1 should now show "firmware.hex" in Program File field
+✓ If you see the filename, you're ready to simulate!
+
+
+================================================================================
+PART 3: RUN THE SIMULATION
+================================================================================
+
+STEP 1: Set Up Simulation Parameters
+-------------------------------------
+1. Click: Debug → System Clock (or press F12)
+2. Set Frequency: 8MHz (matches your crystal)
+3. Click OK
+
+
+STEP 2: Start Simulation
+-------------------------
+1. Click the PLAY button (▶) at bottom left
+2. Or press F12
+3. Simulation starts - you'll see:
+   - Green current flows in wires
+   - Voltage values appear at nodes
+
+
+STEP 3: Test Temperature Response
+----------------------------------
+
+Method A: Manual Temperature Control
+-------------------------------------
+1. DOUBLE-CLICK on U2 (LM35)
+2. Find "Temperature" parameter
+3. Change value: 25 → 50 → 75 → 100
+4. Click OK after each change
+5. Watch PA6 voltage change (PWM increases with temp)
+
+Method B: Interactive Voltage Control
+--------------------------------------
+1. RIGHT-CLICK on U2
+2. Select "Edit Properties"
+3. Add a potentiometer to VOUT if you want variable control
+4. Drag slider to simulate temperature changes
+
+
+STEP 4: Monitor Outputs
+------------------------
+
+Watch These Signals:
+--------------------
+1. PA0 Voltage:
+   - Should show 0.25V at 25°C
+   - Should show 1.0V at 100°C
+   - Range: 0V - 3.3V
+
+2. PA6 PWM Output:
+   - Should be LOW at low temps
+   - Should be HIGH at high temps
+   - Duty cycle increases with temperature
+
+3. Q1 Collector Voltage:
+   - Should switch between 0V and 5V
+   - Represents motor ON/OFF state
+
+4. Motor Current (through R1):
+   - Should increase as temperature rises
+   - Proportional to PWM duty cycle
+
+
+STEP 5: Use Oscilloscope (Optional)
+------------------------------------
+1. Click on "Oscilloscope" tool in left panel
+2. Connect Channel A to PA6 (PWM output)
+3. Connect Channel B to U2 VOUT (temperature)
+4. Click RUN
+5. You'll see PWM waveform changes with temperature
+
+
+================================================================================
+PART 4: VERIFY CORRECT OPERATION
+================================================================================
+
+Expected Behavior:
+------------------
+Temperature  │  U2.VOUT  │  PA0   │  PWM Duty  │  Motor Speed
+─────────────┼───────────┼────────┼────────────┼──────────────
+   25°C      │   0.25V   │  0.25V │    ~6%     │   Very Slow
+   40°C      │   0.40V   │  0.40V │   ~12%     │   Slow
+   60°C      │   0.60V   │  0.60V │   ~18%     │   Medium
+   80°C      │   0.80V   │  0.80V │   ~24%     │   Fast
+  100°C      │   1.00V   │  1.00V │   ~30%     │   Full Speed
+
+
+Test Procedure:
+---------------
+1. Set LM35 to 25°C → Motor should be slow/OFF
+2. Increase to 50°C → Motor speed increases
+3. Increase to 75°C → Motor at medium speed
+4. Increase to 100°C → Motor at high speed
+5. Decrease to 25°C → Motor slows down
+
+
+If It's NOT Working:
+--------------------
+✓ Check HEX file is loaded in U1
+✓ Verify all GND connections are connected
+✓ Verify all power supplies (+3.3V and +5V) are connected
+✓ Check crystal is connected to OSC_IN and OSC_OUT
+✓ Verify PA0 is connected to LM35 VOUT
+✓ Verify PA6 is connected to Q1 BASE through R3
+✓ Make sure simulation clock is set to 8MHz
+
+
+================================================================================
+PART 5: UART OUTPUT (BONUS - OPTIONAL)
+================================================================================
+
+If you want to see UART debug output:
+
+STEP 1: Add Virtual Terminal
+-----------------------------
+1. Search for: VIRTUAL TERMINAL
+2. Place on schematic
+3. Connect:
+   - TXD → U1 Pin PA9
+   - RXD → U1 Pin PA10
+   - GND → GND
+
+STEP 2: Configure UART
+-----------------------
+1. Double-click Virtual Terminal
+2. Set Baud Rate: 115200
+3. Click OK
+
+STEP 3: Run Simulation
+-----------------------
+You'll see output like:
+  "Temp: 45 | ADC: 560 | PWM: 2240"
+
+
+================================================================================
+QUICK TROUBLESHOOTING
+================================================================================
+
+Problem: Circuit won't simulate
+Solution: Check all GND connections are tied to same ground rail
+
+Problem: No PWM output on PA6
+Solution: Verify HEX file is loaded, check TIM3 is configured in code
+
+Problem: Temperature reading is 0V
+Solution: Check LM35 VCC is connected to +5V, VOUT to PA0
+
+Problem: Motor always ON or always OFF
+Solution: Check R3 is connected between PA6 and Q1 BASE
+
+Problem: Simulation is very slow
+Solution: Reduce simulation speed, simplify circuit, or use faster PC
+
+Problem: Can't find components in Proteus
+Solution: Use exact search codes from STEP 2 above
+
+
+================================================================================
+FILE LOCATIONS REFERENCE
+================================================================================
+
+Your Project Structure:
+-----------------------
+RTS_FanControl/
+├── src/
+│   ├── main.c                    ← Your STM32 firmware code
+│   └── stm32_hal_init.c          ← HAL initialization functions
+├── include/
+│   ├── main.h                    ← Header with pin definitions
+│   └── stm32_hal_init.h          ← HAL function declarations
+├── .pio/
+│   └── build/
+│       └── bluepill_f103c8/
+│           └── firmware.hex      ← THE HEX FILE YOU NEED
+├── platformio.ini                ← PlatformIO configuration
+└── PROTEUS_COMPLETE_GUIDE.txt    ← THIS FILE
+
+
+Important Files for Proteus:
+-----------------------------
+✓ firmware.hex  → Load this into U1 (STM32F103C8)
+✓ Your schematic → RTS_FanControl.pdsprj
+
+
+================================================================================
+SUMMARY - THE 5-MINUTE VERSION
+================================================================================
+
+1. BUILD CIRCUIT:
+   - Add 12 components in Proteus
+   - Wire them following STEP 3
+   - Add power supplies (+3.3V, +5V, GND)
+
+2. LOAD HEX:
+   - Build: pio run -e bluepill_f103c8
+   - Double-click U1 in Proteus
+   - Load: .pio\build\bluepill_f103c8\firmware.hex
+
+3. RUN SIMULATION:
+   - Press PLAY (▶)
+   - Change LM35 temperature
+   - Watch PWM output change
+   - Verify motor speed increases with temp
+
+4. DONE!
+   - Take screenshot
+   - Document results
+   - Submit project
+
+
+================================================================================
+NEED HELP?
+================================================================================
+
+If you're stuck:
+1. Re-read the section you're stuck on
+2. Check the "Verify All Connections" section
+3. Use "Quick Troubleshooting" guide
+4. Make sure HEX file is loaded correctly
+5. Verify all power connections are correct
+
+
+Good luck with your simulation! 🚀
+
+================================================================================
+END OF GUIDE
+================================================================================

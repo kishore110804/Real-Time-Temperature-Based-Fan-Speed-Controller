@@ -1,0 +1,32 @@
+# Simulation script with RCC registers pre-configured
+
+using sysbus
+mach create "stm32_working"
+
+# Load platform
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+# Load firmware
+$elf = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_f103c8\\firmware.elf"
+sysbus LoadELF $elf
+
+# Pre-configure RCC registers to skip HSE wait loops
+# This makes the firmware think the clock is already configured
+sysbus WriteDoubleWord 0x40021000 0xA020083   # RCC_CR: HSE ready
+sysbus WriteDoubleWord 0x40021004 0x001D8402   # RCC_CFGR: PLL as SYSCLK
+
+# Setup UART with file logging
+$uart_file = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\uart_output.txt"
+sysbus.usart1 CreateFileBackend $uart_file true
+showAnalyzer sysbus.usart1
+
+echo "Starting simulation with RCC pre-configured..."
+start
+
+echo ""
+echo "✓ Simulation started!"
+echo "✓ UART output: uart_output.txt"
+echo "✓ Check UART Analyzer window"
+echo ""
+echo "The firmware should now run past clock init!"
+echo "Wait 5 seconds, then check uart_output.txt"

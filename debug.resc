@@ -1,0 +1,29 @@
+# Debug script to find available peripherals
+
+using sysbus
+mach create "debug"
+
+echo "Loading STM32F103 platform..."
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+echo ""
+echo "Available peripherals:"
+sysbus
+
+echo ""
+echo "Loading firmware..."
+$elf = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_f103c8\\firmware.elf"
+sysbus LoadELF $elf
+
+echo ""
+echo "Opening UART analyzer..."
+showAnalyzer sysbus.usart1
+
+echo ""
+echo "Starting simulation WITHOUT ADC for now..."
+start
+
+echo ""
+echo "==================================="
+echo "CHECK UART WINDOW FOR OUTPUT"
+echo "==================================="

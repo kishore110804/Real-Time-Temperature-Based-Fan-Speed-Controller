@@ -1,0 +1,232 @@
+================================================================================
+  RTS FAN CONTROL PROJECT - FILE INDEX
+  STM32F103C8 Temperature-Controlled Fan System
+================================================================================
+
+SIMULATION GUIDES (NEW - USE THESE)
+===================================
+
+1. PROTEUS_COMPLETE_GUIDE.txt
+   → Complete step-by-step guide for Proteus circuit simulation
+   → Includes component placement, wiring, and HEX file upload
+   → Use this for hardware circuit simulation
+
+2. RENODE_SIMULATION_GUIDE.txt  
+   → Virtual hardware simulation (no physical devices needed)
+   → Faster and easier than Proteus
+   → FREE alternative to Proteus
+   → Use this for quick software testing
+
+
+SIMULATION SCRIPTS
+==================
+
+3. stm32_sim.resc
+   → Main Renode simulation script
+   → Loads STM32F103C8 and your firmware
+   → Opens UART window automatically
+   → Run with: renode stm32_sim.resc
+
+4. temp_sweep.resc
+   → Automatic temperature sweep (25°C to 100°C)
+   → Simulates LM35 sensor input changes
+   → Run inside Renode: include @temp_sweep.resc
+
+5. simulate_complete.py
+   → Python script for ngspice/KiCad simulation
+   → Generates graphs and CSV data
+   → Run with: python simulate_complete.py
+
+
+SOURCE CODE FILES
+=================
+
+6. src/main.c
+   → Main STM32 firmware code
+   → Contains ADC, PWM, UART logic
+   → Temperature-to-fan-speed algorithm
+
+7. src/stm32_hal_init.c
+   → HAL library initialization functions
+   → System clock, GPIO, ADC, TIM3, UART1 config
+
+8. include/main.h
+   → Pin definitions and constants
+   → Function prototypes
+
+9. include/stm32_hal_init.h
+   → HAL initialization function declarations
+
+
+KICAD/CIRCUIT FILES
+===================
+
+10. RTS_FanControl.kicad_pro
+    → KiCad project file
+
+11. RTS_FanControl.kicad_sch
+    → KiCad schematic diagram
+
+12. RTS_FanControl.cir
+    → ngspice SPICE netlist for circuit simulation
+
+13. tempfan.cir
+    → Simplified SPICE netlist for quick tests
+
+
+DOCUMENTATION
+=============
+
+14. EXACT_CONNECTIONS.md
+    → Pin-by-pin wiring reference
+    → Shows exact pin names from schematic
+
+15. PROJECT_SUMMARY.md
+    → Overall project overview
+    → System architecture and goals
+
+16. COMPLETE_IMPLEMENTATION.md
+    → Full implementation details
+    → Code structure and algorithms
+
+17. KiCad_SETUP_GUIDE.md
+    → How to use KiCad for this project
+
+
+PROTEUS FILES (if using Proteus)
+=================================
+
+18. proteus_circuit_generator.py
+    → Python script to generate Proteus BASIC macros
+
+19. proteus_circuit.bas
+    → BASIC macro for automatic component placement
+
+20. circuit_manifest.json
+    → Component list in JSON format
+
+
+BUILD OUTPUT (Generated after "pio run")
+=========================================
+
+21. .pio/build/bluepill_f103c8/firmware.hex
+    → HEX file for Proteus simulation
+
+22. .pio/build/bluepill_f103c8/firmware.elf
+    → ELF file for Renode simulation
+
+
+================================================================================
+WHICH FILES DO YOU NEED?
+================================================================================
+
+FOR RENODE SIMULATION (RECOMMENDED - FREE & FAST):
+--------------------------------------------------
+✓ RENODE_SIMULATION_GUIDE.txt  ← Read this first
+✓ stm32_sim.resc                ← Main simulation script
+✓ temp_sweep.resc               ← Temperature testing
+✓ firmware.elf                  ← Build with: pio run
+
+
+FOR PROTEUS SIMULATION:
+-----------------------
+✓ PROTEUS_COMPLETE_GUIDE.txt    ← Read this first
+✓ firmware.hex                  ← Build with: pio run
+✓ Manual circuit building in Proteus
+
+
+FOR KICAD/NGSPICE:
+------------------
+✓ KiCad_SETUP_GUIDE.md
+✓ RTS_FanControl.kicad_pro
+✓ simulate_complete.py
+
+
+================================================================================
+QUICK START - CHOOSE YOUR PATH
+================================================================================
+
+PATH 1: RENODE (Easiest - Recommended)
+---------------------------------------
+1. Install Renode from https://renode.io/
+2. Build firmware: pio run -e bluepill_f103c8
+3. Run simulation: renode stm32_sim.resc
+4. Test temperature: include @temp_sweep.resc
+5. Take screenshot of UART output
+
+
+PATH 2: PROTEUS (Traditional Circuit Simulation)
+-------------------------------------------------
+1. Open PROTEUS_COMPLETE_GUIDE.txt
+2. Follow PART 1: Build circuit (12 components)
+3. Follow PART 2: Load firmware.hex
+4. Follow PART 3: Run simulation
+5. Take screenshot of working circuit
+
+
+PATH 3: KICAD + NGSPICE (Circuit Analysis)
+-------------------------------------------
+1. Open RTS_FanControl.kicad_pro in KiCad
+2. Run: python simulate_complete.py
+3. View generated graphs and data
+
+
+================================================================================
+DELETED OLD FILES (Duplicates Removed)
+================================================================================
+
+The following old guide files have been removed to avoid confusion:
+  ✗ BUILD_CHECKLIST.md
+  ✗ CRYSTAL_DIAGRAM.md
+  ✗ CRYSTAL_SETUP.md
+  ✗ CRYSTAL_SIMPLE.txt
+  ✗ QUICK_START.txt
+  ✗ 00_START_HERE.md
+  ✗ MACRO_WORKFLOW.md
+  ✗ READY_TO_TEST.md
+  ✗ TEST_MACRO_INSTRUCTIONS.md
+  ✗ MACRO_INSTRUCTIONS.txt
+  ✗ SETUP_STATUS.txt
+  ✗ PROTEUS_SCHEMATIC_TEMPLATE.txt
+  ✗ PROTEUS_BUILD_GUIDE.md
+
+All information from these files is now consolidated in:
+  → PROTEUS_COMPLETE_GUIDE.txt
+  → RENODE_SIMULATION_GUIDE.txt
+
+
+================================================================================
+RECOMMENDED WORKFLOW
+================================================================================
+
+1. READ:   RENODE_SIMULATION_GUIDE.txt (5 min)
+2. BUILD:  pio run -e bluepill_f103c8 (2 min)
+3. RUN:    renode stm32_sim.resc (1 min)
+4. TEST:   include @temp_sweep.resc (2 min)
+5. DONE:   Screenshot + report (5 min)
+
+Total time: ~15 minutes from start to working simulation!
+
+
+================================================================================
+NEED HELP?
+================================================================================
+
+Renode not working?
+  → Check RENODE_SIMULATION_GUIDE.txt troubleshooting section
+
+Proteus not working?
+  → Check PROTEUS_COMPLETE_GUIDE.txt troubleshooting section
+
+Build errors?
+  → Run: pio run -v (verbose mode)
+  → Check platformio.ini configuration
+
+Simulation not showing output?
+  → Verify UART is configured in code (115200 baud)
+  → Check HAL initialization in stm32_hal_init.c
+
+
+================================================================================
+END OF INDEX
+================================================================================

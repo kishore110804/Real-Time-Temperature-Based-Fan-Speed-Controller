@@ -1,0 +1,70 @@
+================================================================================
+STM32F103C8 FAN CONTROL SYSTEM - SIMULATION REPORT
+================================================================================
+Generated: 2025-11-07 01:09:30
+Project: Real-Time Fan Control using LM35 Temperature Sensor
+
+SYSTEM SPECIFICATIONS:
+--------------------------------------------------------------------------------
+  Microcontroller: STM32F103C8T6 (BluePill)
+  Clock Speed:     72 MHz
+  RAM:             20 KB
+  Flash:           64 KB
+
+  Temperature Sensor: LM35 (10mV/°C)
+  ADC:                12-bit, PA0 (ADC1_IN0)
+  PWM Output:         TIM3_CH1, PA6, 8kHz
+  Motor Driver:       2N2222 NPN Transistor
+  UART Debug:         115200 baud, PA9/PA10
+
+SIMULATION STATISTICS:
+--------------------------------------------------------------------------------
+  Total Samples:      574
+  Temperature Range:  25°C - 100°C
+  Average Temp:       59.8°C
+
+  ADC Range:          300 - 1200 (0-4095)
+  Average ADC:        718
+
+  PWM Duty Range:     1000 - 4000 (0-4000)
+  Average PWM:        2392
+  PWM Utilization:    59.8%
+
+DETAILED MEASUREMENTS:
+--------------------------------------------------------------------------------
+Temperature (°C)     ADC Value       PWM Duty        Fan Speed %    
+--------------------------------------------------------------------------------
+25                   300             1000            25.0           
+30                   360             1200            30.0           
+35                   420             1400            35.0           
+40                   480             1600            40.0           
+45                   540             1800            45.0           
+50                   600             2000            50.0           
+55                   660             2200            55.0           
+60                   720             2400            60.0           
+65                   780             2600            65.0           
+70                   840             2800            70.0           
+75                   900             3000            75.0           
+80                   960             3200            80.0           
+85                   1020            3400            85.0           
+90                   1080            3600            90.0           
+95                   1140            3800            95.0           
+100                  1200            4000            100.0          
+
+================================================================================
+CONTROL ALGORITHM ANALYSIS:
+--------------------------------------------------------------------------------
+The fan control system uses proportional control:
+  - PWM Duty Cycle is proportional to ADC reading
+  - Formula: PWM = (ADC_Value / 4095) * 4000
+  - Linear relationship between temperature and fan speed
+
+Expected Behavior:
+  - At 25°C:  Fan runs at ~30% speed (low cooling)
+  - At 50°C:  Fan runs at ~60% speed (medium cooling)
+  - At 75°C:  Fan runs at ~90% speed (high cooling)
+  - At 100°C: Fan runs at 100% speed (maximum cooling)
+
+================================================================================
+END OF REPORT
+================================================================================

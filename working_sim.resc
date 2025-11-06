@@ -1,0 +1,32 @@
+# Working simulation with file logging
+
+using sysbus
+mach create "stm32_test"
+
+# Load platform
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+# Load firmware
+$elf = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_f103c8\\firmware.elf"
+sysbus LoadELF $elf
+
+# Setup UART with file output
+$uart_file = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\uart_output.txt"
+sysbus.usart1 CreateFileBackend $uart_file true
+
+# Open UART window
+showAnalyzer sysbus.usart1
+
+# Enable logging
+logLevel -1 sysbus.usart1
+
+echo "Starting simulation..."
+echo "UART output will be saved to: uart_output.txt"
+echo "Watch the UART Analyzer window for live output"
+
+start
+
+echo ""
+echo "Simulation is running!"
+echo "Wait 5 seconds, then check uart_output.txt file"
+echo "Type 'pause' to stop simulation"

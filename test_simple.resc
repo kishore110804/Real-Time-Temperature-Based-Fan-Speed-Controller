@@ -1,0 +1,31 @@
+# Simple test script - minimal setup to verify everything works
+
+using sysbus
+mach create "test"
+
+echo "Step 1: Loading STM32F103 platform..."
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+echo "✓ Platform loaded"
+
+echo "Step 2: Loading firmware..."
+$elf = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_f103c8\\firmware.elf"
+sysbus LoadELF $elf
+echo "✓ Firmware loaded"
+
+echo "Step 3: Setting up UART..."
+showAnalyzer sysbus.usart1
+echo "✓ UART analyzer opened"
+
+echo "Step 4: Starting simulation..."
+echo "Note: ADC will read its initial hardware value"
+start
+echo "✓ Simulation started!"
+echo ""
+echo "====================================="
+echo "CHECK THE UART ANALYZER WINDOW!"
+echo "You should see output like:"
+echo "  Temp: XX | ADC: XXXX | PWM: XXXX"
+echo "====================================="
+echo ""
+echo "If you see output, the system is working!"
+echo "Type 'pause' to stop the simulation"

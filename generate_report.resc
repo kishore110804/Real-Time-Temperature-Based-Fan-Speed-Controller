@@ -1,0 +1,90 @@
+# Automated Report Generation Script for STM32 Fan Control Project
+# This script runs a complete temperature sweep and logs all output to a file
+
+using sysbus
+mach create "stm32_fan_project"
+
+# Load STM32F103C8 platform
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+# Load compiled firmware
+$elf_path = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\.pio\\build\\bluepill_f103c8\\firmware.elf"
+sysbus LoadELF $elf_path
+
+# Create log file for UART output
+$log_path = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\simulation_report.log"
+logFile $log_path
+
+# Configure UART and enable logging
+$uart_path = "C:\\Users\\Kishore N\\Documents\\PlatformIO\\Projects\\RTS_FanControl\\uart_output.txt"
+sysbus.usart1 CreateFileBackend $uart_path true
+showAnalyzer sysbus.usart1
+
+echo "========================================="
+echo "STM32 Fan Control - Automated Test Report"
+echo "========================================="
+echo "Starting simulation..."
+echo "UART output will be saved to: uart_output.txt"
+echo "Full log will be saved to: simulation_report.log"
+echo ""
+
+# Start simulation
+start
+
+# Run temperature sweep from 25°C to 100°C
+python
+"""
+import time
+
+print("=" * 60)
+print("TEMPERATURE SWEEP TEST")
+print("=" * 60)
+print("Temperature range: 25°C to 100°C in 5°C increments")
+print("ADC Resolution: 12-bit (0-4095)")
+print("Reference Voltage: 3.3V")
+print("LM35 Output: 10mV/°C")
+print("=" * 60)
+print("")
+
+# Temperature to ADC conversion formula:
+# ADC_value = (Temperature_C * 0.01V) / 3.3V * 4095
+# Simplified: ADC_value ≈ Temperature_C * 12.41
+
+temperatures = range(25, 105, 5)  # 25°C to 100°C in 5°C steps
+
+for temp in temperatures:
+    # Calculate ADC value for this temperature
+    voltage = temp * 0.01  # LM35: 10mV per degree
+    adc_value = int((voltage / 3.3) * 4095)
+    
+    print(f"\nSetting Temperature: {temp}°C")
+    print(f"  LM35 Output: {voltage:.3f}V")
+    print(f"  ADC Input: {adc_value}")
+    
+    # Feed the ADC value to the simulation
+    self.Machine["sysbus.adc1"].FeedSample(adc_value)
+    
+    # Wait 2 seconds for system to stabilize and output data
+    time.sleep(2)
+    
+    print(f"  ✓ Temperature {temp}°C applied")
+
+print("\n" + "=" * 60)
+print("TEMPERATURE SWEEP COMPLETED")
+print("=" * 60)
+print("")
+print("Check uart_output.txt for detailed temperature/PWM readings")
+print("Check simulation_report.log for complete simulation log")
+"""
+
+# After Python script completes, print summary
+echo ""
+echo "========================================="
+echo "SIMULATION COMPLETE!"
+echo "========================================="
+echo "Generated files:"
+echo "  - uart_output.txt (UART debug output)"
+echo "  - simulation_report.log (full simulation log)"
+echo ""
+echo "To stop simulation: quit"
+echo "========================================="

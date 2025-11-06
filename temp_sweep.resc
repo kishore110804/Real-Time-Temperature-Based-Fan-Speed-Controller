@@ -1,0 +1,54 @@
+# Copilot, add a Python monitor loop that updates the ADC input (LM35) in Renode,
+# making it increase temperature from 25°C to 45°C over time, to test the fan control logic.
+
+# Temperature sweep simulation - 25°C to 100°C
+# LM35 outputs 10mV/°C, ADC reads 0-3.3V (12-bit = 0-4095)
+# Formula: ADC_value = (temp_celsius * 0.01V / 3.3V) * 4095
+
+python "
+import time
+
+def temp_to_adc(temp_c):
+    '''Convert temperature in Celsius to ADC value'''
+    voltage = temp_c * 0.01  # LM35: 10mV per °C
+    adc_value = int((voltage / 3.3) * 4095)
+    return adc_value
+
+print('Starting temperature sweep simulation...')
+print('Temperature range: 25°C to 100°C')
+print('Step: 5°C every 2 seconds')
+print('-' * 50)
+
+for temp in range(25, 101, 5):
+    adc_val = temp_to_adc(temp)
+    self.Machine['sysbus.adc1'].FeedSample(adc_val)
+    print(f'Temperature: {temp}°C | ADC Value: {adc_val} | Voltage: {temp*0.01:.2f}V')
+    time.sleep(2)
+
+print('-' * 50)
+print('Temperature sweep complete!')
+print('Fan should have ramped up as temperature increased.')
+"
+
+# Alternative: Manual step-by-step control
+# Uncomment these lines to manually step through temperatures
+
+# echo "Manual temperature control:"
+# sysbus.adc1 FeedSample 310   # 25°C
+# echo "Set to 25°C"
+# pause
+# 
+# sysbus.adc1 FeedSample 496   # 40°C  
+# echo "Set to 40°C"
+# pause
+# 
+# sysbus.adc1 FeedSample 744   # 60°C
+# echo "Set to 60°C"
+# pause
+# 
+# sysbus.adc1 FeedSample 992   # 80°C
+# echo "Set to 80°C"
+# pause
+# 
+# sysbus.adc1 FeedSample 1240  # 100°C
+# echo "Set to 100°C"
