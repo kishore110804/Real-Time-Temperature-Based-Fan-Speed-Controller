@@ -1,0 +1,4 @@
+Plotted to 'C:\Users\Kishore N\Documents\PlatformIO\Projects\RTS_FanControl\circuit\RTS_FanControl.pdf'.
+
+Info: Done.
+Info: Done.

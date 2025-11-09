@@ -1,7 +1,7 @@
 ================================================================================
 STM32F103C8 FAN CONTROL SYSTEM - SIMULATION REPORT
 ================================================================================
-Generated: 2025-11-07 01:09:30
+Generated: 2025-11-07 01:51:15
 Project: Real-Time Fan Control using LM35 Temperature Sensor
 
 SYSTEM SPECIFICATIONS:

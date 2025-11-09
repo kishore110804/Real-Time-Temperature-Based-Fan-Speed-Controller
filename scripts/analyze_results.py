@@ -8,7 +8,7 @@ import re
 import csv
 from datetime import datetime
 
-def parse_uart_output(filename="uart_output.txt"):
+def parse_uart_output(filename="../reports/uart_output.txt"):
     """Parse UART output file and extract temperature, ADC, and PWM data"""
     data = []
     
@@ -131,7 +131,7 @@ def generate_report(data, stats):
     
     return "\n".join(report)
 
-def save_csv(data, filename="simulation_data.csv"):
+def save_csv(data, filename="../reports/simulation_data.csv"):
     """Save data to CSV file for further analysis"""
     if not data:
         return
@@ -160,7 +160,7 @@ def main():
     report = generate_report(data, stats)
     
     # Save report to file
-    report_filename = "PROJECT_REPORT.txt"
+    report_filename = "../reports/PROJECT_REPORT.txt"
     with open(report_filename, 'w') as f:
         f.write(report)
     

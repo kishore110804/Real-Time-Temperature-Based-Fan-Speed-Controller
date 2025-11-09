@@ -1,0 +1,71 @@
+================================================================================
+RTS FAN CONTROL PROJECT - GENERATED GRAPHS SUMMARY
+================================================================================
+Generated on: 2025-11-07 14:25:42
+
+GENERATED GRAPHS FOR REPORT/PRESENTATION:
+--------------------------------------------------------------------------------
+
+1. Period vs Time (Jitter & Deadline Misses)
+   File: 1_period_vs_time_jitter.png
+   Description:
+   Shows real-time task execution period with jitter analysis.
+   Highlights deadline violations and acceptable jitter bounds.
+   Key for demonstrating real-time system performance.
+
+2. Temperature & PWM vs Time (Step/Ramp Tests)
+   File: 2_temp_pwm_vs_time.png
+   Description:
+   Dual-axis plot showing temperature changes and PWM response.
+   Demonstrates proportional control algorithm in action.
+   Shows different test phases: ramp-up, steady-state, peak operation.
+
+3. PWM vs Temperature Scatter with R² Correlation
+   File: 3_pwm_vs_temp_scatter_r2.png
+   Description:
+   Scatter plot with linear regression showing control linearity.
+   R² value demonstrates excellent proportional relationship.
+   Includes confidence interval and ideal line comparison.
+
+4. CPU Utilization Bar Chart
+   File: 4_cpu_utilization_bar.png
+   Description:
+   Compares CPU usage across different operating scenarios.
+   Baseline (25°C) vs Heated Step vs Peak Load (100°C).
+   Demonstrates system efficiency and real-time capability.
+
+5. Fault Event Timeline & Recovery
+   File: 5_fault_event_timeline.png
+   Description:
+   Timeline showing fault events, severity, and recovery times.
+   Demonstrates system reliability and error handling.
+   Includes uptime percentage and Mean Time To Recovery (MTTR).
+
+--------------------------------------------------------------------------------
+HOW TO USE THESE GRAPHS:
+--------------------------------------------------------------------------------
+
+FOR REPORT:
+1. Insert graphs in appropriate sections (Results, Analysis, etc.)
+2. Reference R² value from Graph 3 when discussing control accuracy
+3. Use CPU utilization (Graph 4) in Performance Analysis section
+4. Include fault timeline (Graph 5) in Reliability/Testing section
+
+FOR PRESENTATION (PPT):
+1. Use Graph 3 (R² scatter) as your key result slide
+2. Graph 2 (Temp/PWM vs Time) shows dynamic response clearly
+3. Graph 4 (CPU bar chart) demonstrates efficiency visually
+4. Graph 1 shows real-time performance (jitter analysis)
+5. Graph 5 demonstrates robust error handling
+
+TECHNICAL NOTES:
+--------------------------------------------------------------------------------
+• All graphs generated at 300 DPI (high resolution for print)
+• PNG format (suitable for Word, PowerPoint, LaTeX)
+• Color-coded for clarity and professional appearance
+• Statistical annotations included where relevant
+• Legends and labels clearly visible
+
+================================================================================
+All graphs saved in: C:\Users\Kishore N\Documents\PlatformIO\Projects\RTS_FanControl\goingtodeletereports\graphs_output
+================================================================================
