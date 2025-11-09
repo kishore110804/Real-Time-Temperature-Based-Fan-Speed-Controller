@@ -98,120 +98,85 @@ An **intelligent temperature-based fan control system** using STM32F103C8T6 micr
 
     ├── main_simple.c                # Bare-metal firmware (for Renode)
 
- # RTS Fan Control — README (concise)
+# RTS Fan Control — README
 
- A concise description of the Real-Time Temperature-Based Fan Controller project. This file focuses on the scheduling algorithms used (RMS vs EDF) and how Renode is used to simulate and validate the firmware.
+Purpose
+-------
+Brief, practical documentation for the Real-Time Temperature-Based Fan Controller. Focus: the control law, why Renode is used for validation, and a compact RMS vs EDF comparison.
 
- The aim: practical explanation for a presentation or quick review. For full technical detail see the `documentation/` folder and the simulation scripts.
+Project in one sentence
+-----------------------
+Firmware reads temperature from an LM35 (ADC), applies a proportional control law (pwm = clamp(temp × 40, 0, PWM_MAX)), updates PWM, and logs values over UART. The behavior is validated with Renode and analyzed with Python scripts that generate plots from the recorded CSV.
 
- ## Contents
- - Overview
- - Why Renode
- - Scheduling: RMS vs EDF (practical summary)
- - How Renode runs and inspects firmware
- - Quick start (build + run simulation)
- - Files of interest
- - Reproduce graphs
+Why use Renode
+--------------
+- Emulates STM32 peripherals (ADC, timers, UART) at register level.
+- Produces deterministic, repeatable output files (UART logs, CSV) for analysis.
+- Lets you pause, inspect memory/registers, and run scripted scenarios—ideal for investigating timing and scheduling.
 
- ---
+RMS vs EDF — concise
+--------------------
+- RMS (Rate Monotonic): fixed priorities by period. Simple and predictable; well suited to small periodic task sets. Reasonable schedulability bounds make it straightforward to verify.
+- EDF (Earliest Deadline First): dynamic priorities; can use CPU up to 100% in theory, but needs more runtime bookkeeping.
 
- ## Overview
+This project uses RMS because the task set is small, periodic, and low-utilization; RMS is simpler to demonstrate while meeting jitter and miss-rate targets.
 
- This project implements a proportional temperature-to-PWM fan controller for an STM32F103 (BluePill) using an LM35 sensor. The control law used for demonstration is a simple proportional mapping:
+How Renode is used (practical)
+------------------------------
+1. Load platform description for STM32F103 and the compiled ELF.
+2. Attach USART1 to a file backend and (optionally) an analyzer.
+3. Start the simulation; Renode executes firmware and writes UART output and any configured logs.
 
- pwm_duty = clamp(Temperature * 40, 0, PWM_MAX)
+Useful Renode monitor commands:
+- pause — stop CPU
+- sysbus ReadBytes <addr> <len> — dump memory
+- sysbus ReadDoubleWord <addr> — read peripheral register
+- showAnalyzer sysbus.usart1 — view live UART output
 
- The firmware reads ADC samples, updates the PWM duty cycle, and logs values over UART. Validation and data collection are performed with Renode so results are deterministic and reproducible.
+Quick start
+-----------
+Build firmware:
 
- ## Why Renode
+```powershell
+pio run
+```
 
- Renode is used because it provides a fast, deterministic, and inspectable environment for embedded firmware:
+Run the automated demo (recommended):
 
- - Emulates MCU peripherals (ADC, timers, UART) at the register level.
- - Captures UART and peripheral activity to files for analysis.
- - Allows pausing and introspection (memory, registers), which helps debug timing and scheduling.
- - Integrates in automated workflows (headless runs, reproducible outputs).
+```powershell
+demo.bat
+```
 
- This makes Renode particularly suitable for demonstrations and for validating scheduling/jitter behavior without requiring the physical board.
+Or run Renode manually and include the script:
 
- ## Scheduling: RMS vs EDF (practical)
+```powershell
+renode
+(monitor) include @simulation/demo_sim.resc
+```
 
- A short, practical comparison for this project.
+Generate graphs from the CSV:
 
- Rate Monotonic Scheduling (RMS)
- - Fixed priorities assigned by task period (shorter period → higher priority).
- - Simple and predictable for periodic task sets.
- - Appropriate when tasks are periodic and utilization is low-to-moderate.
+```powershell
+cd goingtodeletereports
+python generate_graphs.py
+```
 
- Earliest Deadline First (EDF)
- - Dynamic priorities based on closest deadline.
- - Can schedule up to 100% CPU utilization (theoretical bound U ≤ 1.0) but requires more dynamic bookkeeping.
+Files of interest
+-----------------
+- `simulation/demo_sim.resc` — Renode script that loads the platform and ELF and records UART.
+- `src/main_simple.c` — Minimal firmware used for simulation.
+- `src/main.c` — HAL-based firmware for hardware.
+- `reports/simulation_data.csv` — Sampled data used for plotting.
+- `goingtodeletereports/generate_graphs.py` — Creates the report PNGs.
 
- Why we use RMS here
- - The project has a small set of periodic tasks (ADC read, PWM update, logging) with low utilization. RMS is simpler to demonstrate and is sufficient given the measured CPU load and jitter targets.
+Reproducing analysis
+--------------------
+1. Run the Renode script (via `demo.bat` or manually) to produce `reports/simulation_data.csv` and `reports/uart_output.txt`.
+2. Run `python goingtodeletereports/generate_graphs.py` to generate the plot images.
 
- When to prefer EDF
- - Highly variable or sporadic task sets, or when you need to utilize CPU closer to 100%.
+Next steps (optional)
+---------------------
+- I can create an explicit Renode-only demo `.bat` that runs Renode headless and produces the CSV without extra wrappers.
+- I can prepare a one-page handout derived from this README for slides.
 
- ## How Renode runs and inspects the firmware
-
- Typical steps (see `simulation/demo_sim.resc`):
- 1. Load an STM32F103 platform description.
- 2. Load the compiled firmware ELF into the virtual flash.
- 3. Attach USART1 to a file backend and (optionally) an analyzer.
- 4. Start the simulation; Renode executes the firmware and records the UART output and any configured logs.
-
- Useful monitor capabilities:
- - pause: stop CPU and inspect state
- - sysbus ReadBytes <addr> <len>: dump memory
- - sysbus ReadDoubleWord <addr>: read peripheral register
- - showAnalyzer sysbus.usart1: show live UART output
-
- These capabilities let you verify that register writes, ADC reads, and timer updates behave as expected and also let you measure jitter and missed deadlines deterministically.
-
- ## Quick start (build and run)
-
- 1) Build firmware (PlatformIO):
-
- ```powershell
- pio run
- ```
-
- 2) Run the Renode demo (automated):
-
- ```powershell
- demo.bat
- ```
-
- Or run Renode interactively and include the script:
-
- ```powershell
- renode
- (monitor) include @simulation/demo_sim.resc
- ```
-
- 3) Generate graphs from collected CSV:
-
- ```powershell
- cd goingtodeletereports
- python generate_graphs.py
- ```
-
- ## Files of interest
- - `simulation/demo_sim.resc` — Renode script that runs the platform and logs UART to file.
- - `src/main_simple.c` — Simplified firmware used during simulation.
- - `src/main.c` — HAL-based firmware for hardware deployment.
- - `reports/simulation_data.csv` — Data used by the plotting scripts.
- - `goingtodeletereports/generate_graphs.py` — Creates PNGs for the report.
-
- ## Reproduce analysis
- 1. Run the Renode script to produce `reports/simulation_data.csv` and `reports/uart_output.txt`.
- 2. Run `python goingtodeletereports/generate_graphs.py` to create graphs in `goingtodeletereports/graphs_output/`.
-
- ## Next steps (optional)
- - I can replace the `demo.bat` call with an explicit, single-step Renode command sequence if you prefer to avoid the batch file.
- - If you want the README pared down further for a slide handout, I can prepare a 1-page summary.
-
- ---
-
- Author: Kishore N — GitHub @kishore110804
+Author: Kishore N — GitHub @kishore110804
